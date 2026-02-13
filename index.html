@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Student Profile</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #89cfff, #fff47f); /* blue to yellow */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.profile-container {
+  background: rgba(255,255,255,0.9);
+  border-radius: 20px;
+  padding: 30px;
+  text-align: center;
+  width: 350px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.profile-pic {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 20px;
+  border: 3px solid #0a1f44;
+}
+
+h2, p {
+  margin: 10px 0;
+  color: #0a1f44;
+}
+</style>
+</head>
+<body>
+
+<div class="profile-container">
+  <img src="" id="profilePic" class="profile-pic" alt="Profile Picture">
+  <h2 id="email">Email</h2>
+  <p id="tracking">Tracking Number</p>
+</div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAal-tUtavmqhKDGfY5ETXTanvBoieN304",
+  authDomain: "student-document-request-4cd93.firebaseapp.com",
+  projectId: "student-document-request-4cd93",
+  storageBucket: "student-document-request-4cd93.firebasestorage.app",
+  messagingSenderId: "646537888403",
+  appId: "1:646537888403:web:b9c8826a2ae92f073f4366",
+  measurementId: "G-TQQ8779L4G"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const storage = firebase.storage();
+
+auth.onAuthStateChanged(async (user) => {
+  if(user){
+    const userDoc = await db.collection("users").doc(user.uid).get();
+    if(userDoc.exists){
+      const data = userDoc.data();
+      document.getElementById("email").innerText = data.email || user.email;
+      document.getElementById("tracking").innerText = "Tracking: " + (data.trackingNumber || "N/A");
+      if(data.profilePic){
+        document.getElementById("profilePic").src = data.profilePic;
+      } else {
+        document.getElementById("profilePic").src = "https://via.placeholder.com/120"; // default icon
+      }
